@@ -12,7 +12,7 @@ env:
   ECR_REPO: thalassa-docker-aws
   ECS_CLUSTER: thalassa-docker-cluster
   ECS_TD: thalassa-docker-td
-  ECS_SV:
+  ECS_SV: thalassa-docker-sv
 
 defaults:
   run:
@@ -58,7 +58,7 @@ jobs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ./task-definition.json
-        container-name: ¢{{ env.CONTAINER_NAME }}
+        container-name: ${{ env.CONTAINER_NAME }}
         image: ${{ steps.build-image.outputs.image }}
 
     - name: Deploy ECS Task Definition
