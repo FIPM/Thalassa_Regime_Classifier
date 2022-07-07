@@ -12,4 +12,4 @@ enableCORS=false\n\
 port = $PORT\n\
 " > ~/.streamlit/config.toml
 
-nohup python Thalassa_Regime_Classifier/stream_data.py &
+# nohup python Thalassa_Regime_Classifier/stream_data.py &

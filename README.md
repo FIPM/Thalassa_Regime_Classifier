@@ -1,74 +1,26 @@
-# Data analysis
-- Document here the project: Thalassa_Regime_Classifier
-- Description: Project Description
-- Data Source:
-- Type of analysis:
+# ecs-github-actions
+[![Deploy to AWS ECS](https://github.com/fipm/Thalassa_Regime_Classifier/actions/workflows/aws-ecs.yml/badge.svg?branch=master)](https://github.com/fipm/Thalassa_Regime_Classifier/actions/workflows/aws-ecs.yml/badge.svg?branch=master)
 
-Please document the project the better you can.
 
-# Startup the project
+# Title
+Thalassa trading tool: predicting the volatility of a cryptocurrency.
 
-The initial setup.
+# Problem
+Experience traders' perception of risk (volatility) will affect their decision-making process, and hence their expected returns if they do not accurately infer future risk.
 
-Create virtualenv and install the project:
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv ~/venv ; source ~/venv/bin/activate ;\
-    pip install pip -U; pip install -r requirements.txt
-```
+# Solution
+To help traders in their decision-making process, we build an application to predict in real-time a cryptocurrency's volatility and its regime.
 
-Unittest test:
-```bash
-make clean install test
-```
+# Technical details
+- By using data engineering, we gather, clean, and deliver high-frequency data (the order book) to feed models in a pipeline.
+- By using statistics, we process the data to a frequency of seconds and construct financial features from the order book data. We employ the method of principal component analysis as a feature reduction.- By using machine learning, we train, validate and test both a  time series model that uses as features the historical volatility and financial data to predict volatility in the next 30 seconds, and a gaussian mixture model to predict its regime. 
+- By using cloud platforms, we create and deploy a webpage to inform traders about the expected volatility and its regime.
 
-Check for Thalassa_Regime_Classifier in gitlab.com/{group}.
-If your project is not set please add it:
+# Key technologies
+Websocket, Pandas, Scikit-Learn, Streamlit, Doker, Google Cloud Platform.
 
-- Create a new project on `gitlab.com/{group}/Thalassa_Regime_Classifier`
-- Then populate it:
-
-```bash
-##   e.g. if group is "{group}" and project_name is "Thalassa_Regime_Classifier"
-git remote add origin git@github.com:{group}/Thalassa_Regime_Classifier.git
-git push -u origin master
-git push -u origin --tags
-```
-
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-Thalassa_Regime_Classifier-run
-```
-
-# Install
-
-Go to `https://github.com/{group}/Thalassa_Regime_Classifier` to see the project, manage issues,
-setup you ssh public key, ...
-
-Create a python3 virtualenv and activate it:
-
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv -ppython3 ~/venv ; source ~/venv/bin/activate
-```
-
-Clone the project and install it:
-
-```bash
-git clone git@github.com:{group}/Thalassa_Regime_Classifier.git
-cd Thalassa_Regime_Classifier
+# Install requirements
 pip install -r requirements.txt
-make clean install test                # install and test
-```
-Functionnal test with a script:
 
-```bash
-cd
-mkdir tmp
-cd tmp
-Thalassa_Regime_Classifier-run
-```
+# To run the website locally
+streamlit run Thalassa_Regime_Classifier/app.py

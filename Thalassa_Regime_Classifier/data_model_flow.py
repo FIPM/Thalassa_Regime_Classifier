@@ -25,7 +25,9 @@ class DataModelPipeline():
         # unix_timestamp = lambda x: datetime.fromtimestamp(x/1000.0, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
         str2date = lambda x: datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
         # self.data['primary_key']=self.data['ts'].apply(unix_timestamp).apply(str2date)
-        self.data['primary_key']=self.data['primary_key'].apply(str2date)
+        
+        
+        # self.data['primary_key']=self.data['primary_key'].apply(str2date)
 
 
         # self.data['less30s']=self.data['primary_key'].dt.second<30
@@ -62,17 +64,19 @@ class DataModelPipeline():
         self.data['First2OFI'] = ((self.data['bs1']+self.data['bs2']) - (self.data['as1']+self.data['as2']))/ ((self.data['bs1']+self.data['bs2']) + (self.data['as1']+self.data['as2']))
         self.data['FDOFI'] = (self.data['full_bid_depth']-self.data['full_ask_depth'])/(self.data['full_bid_depth']+self.data['full_ask_depth'])
 
+
+
         # realized_volatility
         sigma = lambda x: (np.nansum(x**2))**0.5
         y = self.data[['log_returns']]
 
         rolling=30
-        y = y.rolling(rolling).apply(sigma)
+        y = y.rolling(rolling, min_periods=1).apply(sigma)
 
 
         primary_key=self.data['primary_key']
 
-        self.data = self.data.rolling(rolling).mean()
+        self.data = self.data.rolling(rolling, min_periods=1).mean()
         self.data['realized_volatility']=y.values
         self.data['primary_key']=primary_key
 

@@ -4,19 +4,47 @@ import pandas as pd
 from datetime import datetime
 from websocket import create_connection
 import json
-import _thread
-import time
 
 class StreamingData():
     def __init__(self):
         self.depth = 20
         self.df_0 = None
-        self.df = None
         # self.model = joblib.load('/Users/fipm/code/abefarkas/Thalassa_Regime_Classifier/model.joblib')
         self.symbol = 'BTCUSDT'
         self.socket = 'wss://stream.binance.com:9443/ws/{}@depth{}'.format(self.symbol.lower(),self.depth)
         self.ws = None
-        
+
+    def get_stream_data(self, rolling_window=2):
+        '''clean the stream data'''
+        df = pd.DataFrame.from_dict(self.my_json(json.loads(self.ws.recv())))
+        self.df_0 = pd.concat([self.df_0, df], axis=0)
+        # to keep in memory enough data to have 50 rows
+        # after triggering preprocessing_streamed_data
+        self.df_0 = self.df_0.tail(500)
+        return self.preprocessing_streamed_data(self.df_0, rolling_window).reset_index(drop=True)
+
+    def start(self):
+        '''start the connection with the server'''
+        self.df_0 = pd.DataFrame.from_dict(self.my_json_0(self.depth))
+        self.ws = create_connection(self.socket)
+
+    def preprocessing_streamed_data(self,df_ob, rolling_window):
+        '''preprocessing of data for streamed data'''
+        # aggregating by seconds
+        df_agg = df_ob.groupby(pd.Grouper(key='primary_key', axis=0, freq='S')).mean()
+        # applying rolling window of rolling_window lenght
+
+        # COMMENTED NEXT LINE SO THAT THE STREAMED DATA IS AGGREGATED BY SECOND
+        # ALL FEATURES ARE CREATED IN THE DATA-MODEL-PIPELINE
+
+        # df_agg = df_agg.rolling(str(rolling_window)+'S').mean()
+        # moving the index as a column
+        df_agg.reset_index(inplace=True)
+        # keeping the last 50 rows (most recent information)
+        df_agg = df_agg.dropna().tail(200)
+
+        return df_agg
+
     def my_json(self, json_message):
         '''transforming the data to a dict type'''
         size = len(np.array(json_message['bids'])[:,0])
@@ -36,44 +64,10 @@ class StreamingData():
             **{'ap'+str(key):[value] for key,value in zip(np.arange(0,size)+1,(np.arange(0,size)+1)*np.nan)},
             **{'as'+str(key):[value] for key,value in zip(np.arange(0,size)+1,(np.arange(0,size)+1)*np.nan)}}
 
-    def preprocessing_streamed_data(self,df_ob):
-        '''preprocessing of data for streamed data'''
-        # aggregating by seconds
-        df_agg = df_ob.groupby(pd.Grouper(key='primary_key', axis=0, freq='S')).mean()        
-        # moving the index as a column
-        df_agg.reset_index(inplace=True)
-        # keeping the last 50 rows (most recent information)
-        df_agg = df_agg.dropna().tail(200)
-
-        return df_agg
-    
-    def ws_stream_data(self):
-        '''clean the stream data'''
-        while True:
-            df = pd.DataFrame.from_dict(self.my_json(json.loads(self.ws.recv())))
-            self.df_0 = pd.concat([self.df_0, df], axis=0)
-            # to keep in memory enough data to have 50 rows
-            # after triggering preprocessing_streamed_data
-            self.df_0 = self.df_0.tail(500)
-            # first 29 rolling windows will have less than 29 obs when calculating the aggregation.
-            # better than waiting 30 seconds to plot first observation in streamlit
-            self.df = self.preprocessing_streamed_data(self.df_0).reset_index(drop=True)
-            # print(self.df[['primary_key']])
-            time.sleep(.5)
-         
-    def get_stream_data(self):
-        return self.df
-    
-    def start(self):
-        '''start the connection with the server'''
-        self.df_0 = pd.DataFrame.from_dict(self.my_json_0(self.depth))
-        self.ws = create_connection(self.socket)
-        # Start a new thread for the WebSocket interface
-        _thread.start_new_thread(self.ws_stream_data, ())
-
 
 if __name__=='__main__':
     w = StreamingData()
     w.start()
-    while True:        
-        print(w.get_stream_data())
+    while True:
+        # w.get_stream_data(rolling_window=30).to_csv('predicted_values.csv')
+        w.get_stream_data().to_csv('predicted_values.csv')
