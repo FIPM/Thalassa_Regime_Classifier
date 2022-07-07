@@ -1,9 +1,9 @@
 name: Deploy to AWS ECS
 
 on: 
-	push:
-		branches:
-			- master 
+  push:
+    branches:
+      - master 
 
 env: 
 	AWS_REGION: us-east-1a
@@ -11,7 +11,7 @@ env:
 	ECR_REGISTRY: 418562285287.dkr.ecr.us-east-1.amazonaws.com
 	ECR_REPO: thalassa-docker-aws
 	ECS_CLUSTER: thalassa-docker-cluster
-	ECS_TD:
+	ECS_TD: thalassa-docker-td
 	ECS_SV:
 
 defaults:
