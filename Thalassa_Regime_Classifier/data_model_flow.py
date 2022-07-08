@@ -75,7 +75,7 @@ class DataModelPipeline():
 
 
         primary_key=self.data['primary_key']
-
+        self.data.drop(columns=['primary_key'], inplace=True)
         self.data = self.data.rolling(rolling, min_periods=1).mean()
         self.data['realized_volatility']=y.values
         self.data['primary_key']=primary_key
